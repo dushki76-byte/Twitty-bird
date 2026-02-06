@@ -13,10 +13,13 @@ let birdWidth = 20;
 let birdHeight = 20;
 let birdX = 50;
 let obstacles = [];
+let gameOver = false; // Variable to track if the game is over
 
 // Event listener for clicks on the canvas to make the bird flap
 canvas.addEventListener("click", () => {
-    birdVelocity = birdFlapStrength; // When clicked, bird moves up
+    if (!gameOver) {
+        birdVelocity = birdFlapStrength; // When clicked, bird moves up
+    }
 });
 
 function createObstacle() {
@@ -85,6 +88,10 @@ function drawScore() {
 }
 
 function gameLoop() {
+    if (gameOver) {
+        return; // Stop the game loop if the game is over
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
 
     // Create obstacles at random intervals
@@ -99,11 +106,21 @@ function gameLoop() {
     drawScore();
 
     if (checkCollisions()) {
-        alert("Game Over! You hit the obstacle!");
-        obstacles = []; // Reset obstacles to restart the game
+        gameOver = true; // Set the game to over
+        setTimeout(() => {
+            restartGame(); // Restart the game after 1 second
+        }, 1000); // Delay before restarting the game
     }
 
     requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+    birdY = canvas.height / 2; // Reset bird position
+    birdVelocity = 0; // Reset bird velocity
+    obstacles = []; // Clear obstacles
+    gameOver = false; // Set game state to not over
+    gameLoop(); // Start the game loop again
 }
 
 // Start the game loop
