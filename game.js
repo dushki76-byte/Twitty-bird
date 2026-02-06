@@ -15,9 +15,9 @@ let birdX = 50;
 let isFlapping = false;
 let obstacles = [];
 
-// Key press for bird flap
-document.addEventListener("keydown", () => {
-    birdVelocity = birdFlapStrength;
+// Event listener for clicks on the canvas to make the bird flap
+canvas.addEventListener("click", () => {
+    birdVelocity = birdFlapStrength; // When clicked, bird moves up
 });
 
 function createObstacle() {
@@ -49,65 +49,6 @@ function checkCollisions() {
             birdX < obstacle.x + obstacle.width &&
             (birdY < obstacle.top || birdY + birdHeight > obstacle.top + obstacle.bottom)
         ) {
-            return true; // Collision detected
-        }
-    }
-    return false;
-}
-
-function updateBird() {
-    birdVelocity += gravity; // Apply gravity
-    birdY += birdVelocity; // Update bird position
-
-    if (birdY < 0) birdY = 0; // Prevent bird from going off top
-    if (birdY + birdHeight > canvas.height) birdY = canvas.height - birdHeight; // Prevent bird from going off bottom
-}
-
-function drawBird() {
-    ctx.fillStyle = "#ff0";
-    ctx.fillRect(birdX, birdY, birdWidth, birdHeight);
-}
-
-function drawObstacles() {
-    ctx.fillStyle = "#008000";
-    for (let obstacle of obstacles) {
-        ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.top); // Top pipe
-        ctx.fillRect(obstacle.x, canvas.height - obstacle.bottom, obstacle.width, obstacle.bottom); // Bottom pipe
-    }
-}
-
-function drawScore() {
-    ctx.fillStyle = "#000";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + obstacles.length, 10, 30);
-}
-
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
-
-    // Create first obstacle and make it impossible to pass
-    if (obstacles.length === 0) {
-        createObstacle();
-    }
-
-    if (obstacles[0].x < 70) { // Position the first obstacle to be unpassable
-        obstacles[0].top = 100;
-        obstacles[0].bottom = 100;
-    }
-
-    moveObstacles();
-    updateBird();
-    drawBird();
-    drawObstacles();
-    drawScore();
-
-    if (checkCollisions()) {
-        alert("Game Over! You hit the first obstacle!");
-        obstacles = []; // Reset obstacles to restart the game
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-
+            return true; // Collision
 // Start the game loop
 gameLoop();
