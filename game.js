@@ -20,18 +20,21 @@ canvas.addEventListener("click", () => {
 });
 
 function createObstacle() {
-    let height = Math.random() * (canvas.height / 2) + 50;
+    // Randomize the height of the gap
+    let gapHeight = Math.random() * (canvas.height / 3) + 100; // Gap between pipes (min 100px)
+    let topObstacleHeight = gapHeight; // Height of the top obstacle
+    let bottomObstacleHeight = canvas.height - (gapHeight + 100); // Height of the bottom obstacle
     obstacles.push({
         x: canvas.width,
-        top: height,
-        bottom: canvas.height - height - 100,
+        top: topObstacleHeight,
+        bottom: bottomObstacleHeight,
         width: 30
     });
 }
 
 function moveObstacles() {
     for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].x -= 2;
+        obstacles[i].x -= 2; // Move obstacles to the left
         // Remove obstacles that are off the screen
         if (obstacles[i].x + obstacles[i].width < 0) {
             obstacles.splice(i, 1);
@@ -46,7 +49,7 @@ function checkCollisions() {
         if (
             birdX + birdWidth > obstacle.x &&
             birdX < obstacle.x + obstacle.width &&
-            (birdY < obstacle.top || birdY + birdHeight > obstacle.top + obstacle.bottom)
+            (birdY < obstacle.top || birdY + birdHeight > canvas.height - obstacle.bottom)
         ) {
             return true; // Collision detected
         }
@@ -84,14 +87,9 @@ function drawScore() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
 
-    // Create first obstacle and make it impossible to pass
-    if (obstacles.length === 0) {
+    // Create obstacles at random intervals
+    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 200) {
         createObstacle();
-    }
-
-    if (obstacles[0].x < 70) { // Position the first obstacle to be unpassable
-        obstacles[0].top = 100;
-        obstacles[0].bottom = 100;
     }
 
     moveObstacles();
@@ -101,7 +99,7 @@ function gameLoop() {
     drawScore();
 
     if (checkCollisions()) {
-        alert("Game Over! You hit the first obstacle!");
+        alert("Game Over! You hit the obstacle!");
         obstacles = []; // Reset obstacles to restart the game
     }
 
