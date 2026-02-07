@@ -13,6 +13,7 @@ let birdWidth = 20;
 let birdHeight = 20;
 let birdX = 50;
 let obstacles = [];
+let bullets = []; // Array to store bullets
 let gameOver = false; // Variable to track if the game is over
 
 // Event listener for clicks on the canvas to make the bird flap
@@ -21,6 +22,14 @@ canvas.addEventListener("click", () => {
         birdVelocity = birdFlapStrength; // When clicked, bird moves up
     }
 });
+
+// Shoot Button Event
+document.getElementById("shootButton").addEventListener("click", shootBullet);
+
+function shootBullet() {
+    // Create bullet object
+    bullets.push({ x: birdX + birdWidth, y: birdY + birdHeight / 2, width: 5, height: 5, speed: 4 });
+}
 
 function createObstacle() {
     // Randomize the height of the gap
@@ -42,6 +51,35 @@ function moveObstacles() {
         if (obstacles[i].x + obstacles[i].width < 0) {
             obstacles.splice(i, 1);
             i--;
+        }
+    }
+}
+
+function moveBullets() {
+    for (let i = 0; i < bullets.length; i++) {
+        bullets[i].y -= bullets[i].speed; // Move the bullet upwards
+        // Remove bullets that go off screen
+        if (bullets[i].y < 0) {
+            bullets.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+function checkBulletCollisions() {
+    for (let i = 0; i < bullets.length; i++) {
+        for (let j = 0; j < obstacles.length; j++) {
+            if (
+                bullets[i].x + bullets[i].width > obstacles[j].x &&
+                bullets[i].x < obstacles[j].x + obstacles[j].width &&
+                (bullets[i].y < obstacles[j].top || bullets[i].y + bullets[i].height > canvas.height - obstacles[j].bottom)
+            ) {
+                // Remove obstacle and bullet
+                obstacles.splice(j, 1);
+                bullets.splice(i, 1);
+                i--;
+                break;
+            }
         }
     }
 }
@@ -81,6 +119,13 @@ function drawObstacles() {
     }
 }
 
+function drawBullets() {
+    ctx.fillStyle = "#FF0000"; // Red color for bullets
+    for (let bullet of bullets) {
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    }
+}
+
 function drawScore() {
     ctx.fillStyle = "#000"; // Black color for text
     ctx.font = "20px Arial";
@@ -100,10 +145,14 @@ function gameLoop() {
     }
 
     moveObstacles();
+    moveBullets();
     updateBird();
     drawBird();
     drawObstacles();
+    drawBullets();
     drawScore();
+
+    checkBulletCollisions();
 
     if (checkCollisions()) {
         gameOver = true; // Set the game to over
@@ -119,6 +168,7 @@ function restartGame() {
     birdY = canvas.height / 2; // Reset bird position
     birdVelocity = 0; // Reset bird velocity
     obstacles = []; // Clear obstacles
+    bullets = []; // Clear bullets
     gameOver = false; // Set game state to not over
     gameLoop(); // Start the game loop again
 }
