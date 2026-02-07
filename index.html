@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impossible Flappy Bird</title>
     <style>
-        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #70c5ce; }
+        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #70c5ce; flex-direction: column; }
         canvas { border: 2px solid black; }
+        #shootButton { position: fixed; bottom: 20px; padding: 10px 20px; background-color: #f44336; color: white; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
+    <button id="shootButton">Shoot</button>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
 </body>
