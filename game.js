@@ -2,136 +2,93 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Set canvas size
-canvas.width = 320;
-canvas.height = 480;
+canvas.width = 500;
+canvas.height = 500;
 
-let birdY = canvas.height / 2;
-let birdVelocity = 0;
-let birdFlapStrength = -6;
-let gravity = 0.2;
-let birdWidth = 20;
-let birdHeight = 20;
-let birdX = 50;
-let obstacles = [];
-let clicks = 0; // Variable to track the number of clicks
-let forwardSpeed = 2; // Speed at which the bird moves forward
+let plantHeight = 30; // Initial height of the plant
+let plantGrowthRate = 2; // Rate at which the plant grows when fed
+let fruits = []; // Array to hold the fruits
+let bucket = { x: 400, y: 400, width: 50, height: 50 }; // Bucket to store fruits
+let energy = 0; // Track how much energy has been given to the plant
+let gameOver = false; // Track if the game is over
 
-let gameOver = false; // Variable to track if the game is over
+// Plant position in the center of the canvas
+let plantX = canvas.width / 2 - 25;
+let plantY = canvas.height / 2 + 50;
 
-// Event listener for clicks on the canvas to make the bird flap
-canvas.addEventListener("click", () => {
-    clicks++; // Increment click count on each click
+// Plant image (we will just use a simple rectangle for now)
+let plantColor = "#228B22"; // Green for the plant color
+
+// Fruit properties
+let fruitColor = "#FFD700"; // Yellow fruit color
+let fruitRadius = 10; // Size of the fruit
+let fruitInterval = 100; // Interval at which fruits appear
+
+// Click detection for plucking fruit
+canvas.addEventListener("click", function(event) {
     if (!gameOver) {
-        if (clicks === 1) {
-            birdVelocity = birdFlapStrength; // First click: make the bird flap
-        } else if (clicks === 2) {
-            birdVelocity = birdFlapStrength; // Make the bird flap again
-            birdX += 50; // Move the bird forward by 50 pixels to simulate passing the obstacle
-            clicks = 0; // Reset clicks after passing the obstacle
+        // Check if click is on any fruit
+        for (let i = 0; i < fruits.length; i++) {
+            let fruit = fruits[i];
+            let distance = Math.sqrt(Math.pow(event.offsetX - fruit.x, 2) + Math.pow(event.offsetY - fruit.y, 2));
+            if (distance < fruitRadius) {
+                // Remove the fruit from the array when plucked
+                fruits.splice(i, 1);
+                break;
+            }
         }
     }
 });
 
-function createObstacle() {
-    let gapHeight = Math.random() * (canvas.height / 3) + 100; // Gap between pipes (min 100px)
-    let topObstacleHeight = gapHeight; // Height of the top obstacle
-    let bottomObstacleHeight = canvas.height - (gapHeight + 100); // Height of the bottom obstacle
-    obstacles.push({
-        x: canvas.width,
-        top: topObstacleHeight,
-        bottom: bottomObstacleHeight,
-        width: 30
-    });
-}
+// Feed button event
+document.getElementById("feedButton").addEventListener("click", feedPlant);
 
-function moveObstacles() {
-    for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].x -= 2; // Move obstacles to the left
-        // Remove obstacles that are off the screen
-        if (obstacles[i].x + obstacles[i].width < 0) {
-            obstacles.splice(i, 1);
-            i--;
-        }
+function feedPlant() {
+    if (gameOver) return;
+
+    energy++; // Increase the energy when the feed button is clicked
+
+    // Grow the plant
+    if (energy > 0) {
+        plantHeight += plantGrowthRate; // Increase plant height
+    }
+
+    // Start producing fruits after a certain height
+    if (plantHeight > 50 && fruits.length < 5) {
+        // Add fruit randomly around the plant
+        let fruitX = Math.random() * 40 + plantX - 20; // Random x position near the plant
+        let fruitY = Math.random() * 50 + plantY - 30; // Random y position near the plant
+        fruits.push({ x: fruitX, y: fruitY });
     }
 }
 
-function checkCollisions() {
-    for (let obstacle of obstacles) {
-        if (
-            birdX + birdWidth > obstacle.x &&
-            birdX < obstacle.x + obstacle.width &&
-            (birdY < obstacle.top || birdY + birdHeight > canvas.height - obstacle.bottom)
-        ) {
-            return true; // Collision detected
-        }
-    }
-    return false;
+function drawPlant() {
+    ctx.fillStyle = plantColor;
+    ctx.fillRect(plantX, canvas.height - plantHeight - 50, 50, plantHeight); // Draw plant
 }
 
-function updateBird() {
-    birdVelocity += gravity; // Apply gravity
-    birdY += birdVelocity; // Update bird position
-
-    if (birdY < 0) birdY = 0; // Prevent bird from going off top
-    if (birdY + birdHeight > canvas.height) birdY = canvas.height - birdHeight; // Prevent bird from going off bottom
-}
-
-function drawBird() {
-    ctx.fillStyle = "#ff0"; // Yellow color for the bird
-    ctx.fillRect(birdX, birdY, birdWidth, birdHeight);
-}
-
-function drawObstacles() {
-    ctx.fillStyle = "#008000"; // Green color for obstacles
-    for (let obstacle of obstacles) {
-        ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.top); // Top pipe
-        ctx.fillRect(obstacle.x, canvas.height - obstacle.bottom, obstacle.width, obstacle.bottom); // Bottom pipe
+function drawFruits() {
+    ctx.fillStyle = fruitColor;
+    for (let i = 0; i < fruits.length; i++) {
+        ctx.beginPath();
+        ctx.arc(fruits[i].x, fruits[i].y, fruitRadius, 0, Math.PI * 2); // Draw fruit as a circle
+        ctx.fill();
     }
 }
 
-function drawScore() {
-    ctx.fillStyle = "#000"; // Black color for text
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + obstacles.length, 10, 30); // Display score
+function drawBucket() {
+    ctx.fillStyle = "#8B4513"; // Brown color for the bucket
+    ctx.fillRect(bucket.x, bucket.y, bucket.width, bucket.height); // Draw the bucket
 }
 
-function gameLoop() {
-    if (gameOver) {
-        return; // Stop the game loop if the game is over
-    }
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
-
-    // Create obstacles at random intervals
-    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 200) {
-        createObstacle();
-    }
-
-    moveObstacles();
-    updateBird();
-    drawBird();
-    drawObstacles();
-    drawScore();
-
-    if (checkCollisions()) {
-        gameOver = true; // Set the game to over
-        setTimeout(() => {
-            restartGame(); // Restart the game after 1 second
-        }, 1000); // Delay before restarting the game
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-
-function restartGame() {
-    birdY = canvas.height / 2; // Reset bird position
-    birdVelocity = 0; // Reset bird velocity
-    obstacles = []; // Clear obstacles
-    clicks = 0; // Reset click count
-    birdX = 50; // Reset bird's horizontal position
-    gameOver = false; // Set game state to not over
-    gameLoop(); // Start the game loop again
+    drawPlant(); // Draw the plant
+    drawFruits(); // Draw the fruits
+    drawBucket(); // Draw the bucket
+    requestAnimationFrame(draw); // Redraw
 }
 
 // Start the game loop
-gameLoop();
+draw();
