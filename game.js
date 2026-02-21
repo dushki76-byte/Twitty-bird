@@ -5,7 +5,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 500;
 canvas.height = 500;
 
-let plantHeight = 30; // Initial height of the plant
+let plantHeight = 30; // Initial height of the plant (trunk height)
 let plantGrowthRate = 2; // Rate at which the plant grows when fed
 let fruits = []; // Array to hold the fruits
 let bucket = { x: 400, y: 400, width: 50, height: 50 }; // Bucket to store fruits
@@ -16,10 +16,9 @@ let gameOver = false; // Track if the game is over
 let plantX = canvas.width / 2 - 25;
 let plantY = canvas.height / 2 + 50;
 
-// Plant image (we will just use a simple rectangle for now)
-let plantColor = "#228B22"; // Green for the plant color
-
-// Fruit properties
+// Plant color (tree trunk)
+let trunkColor = "#8B4513"; // Brown color for the trunk
+let foliageColor = "#228B22"; // Green color for foliage (tree canopy)
 let fruitColor = "#FFD700"; // Yellow fruit color
 let fruitRadius = 10; // Size of the fruit
 let fruitInterval = 100; // Interval at which fruits appear
@@ -48,7 +47,7 @@ function feedPlant() {
 
     energy++; // Increase the energy when the feed button is clicked
 
-    // Grow the plant
+    // Grow the plant (tree trunk)
     if (energy > 0) {
         plantHeight += plantGrowthRate; // Increase plant height
     }
@@ -62,9 +61,16 @@ function feedPlant() {
     }
 }
 
-function drawPlant() {
-    ctx.fillStyle = plantColor;
-    ctx.fillRect(plantX, canvas.height - plantHeight - 50, 50, plantHeight); // Draw plant
+function drawTree() {
+    // Draw the tree trunk
+    ctx.fillStyle = trunkColor;
+    ctx.fillRect(plantX, canvas.height - plantHeight - 50, 50, plantHeight); // Tree trunk
+
+    // Draw the tree canopy (top part)
+    ctx.fillStyle = foliageColor;
+    ctx.beginPath();
+    ctx.arc(plantX + 25, canvas.height - plantHeight - 50, 50, Math.PI, 0, false); // Canopy (semi-circle)
+    ctx.fill();
 }
 
 function drawFruits() {
@@ -84,7 +90,7 @@ function drawBucket() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
-    drawPlant(); // Draw the plant
+    drawTree(); // Draw the tree trunk and canopy
     drawFruits(); // Draw the fruits
     drawBucket(); // Draw the bucket
     requestAnimationFrame(draw); // Redraw
