@@ -14,6 +14,7 @@ let birdHeight = 20;
 let birdX = 50;
 let obstacles = [];
 let clicks = 0; // Variable to track the number of clicks
+let forwardSpeed = 2; // Speed at which the bird moves forward
 
 let gameOver = false; // Variable to track if the game is over
 
@@ -24,7 +25,8 @@ canvas.addEventListener("click", () => {
         if (clicks === 1) {
             birdVelocity = birdFlapStrength; // First click: make the bird flap
         } else if (clicks === 2) {
-            birdVelocity = -20; // Second click: make the bird go up fast enough to pass the obstacle
+            birdVelocity = birdFlapStrength; // Make the bird flap again
+            birdX += 50; // Move the bird forward by 50 pixels to simulate passing the obstacle
             clicks = 0; // Reset clicks after passing the obstacle
         }
     }
@@ -126,6 +128,7 @@ function restartGame() {
     birdVelocity = 0; // Reset bird velocity
     obstacles = []; // Clear obstacles
     clicks = 0; // Reset click count
+    birdX = 50; // Reset bird's horizontal position
     gameOver = false; // Set game state to not over
     gameLoop(); // Start the game loop again
 }
