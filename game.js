@@ -16,7 +16,7 @@ let gameOver = false; // Track if the game is over
 let plantX = canvas.width / 2 - 25;
 let plantY = canvas.height / 2 + 50;
 
-// Plant color (tree trunk)
+// Tree trunk color
 let trunkColor = "#8B4513"; // Brown color for the trunk
 let foliageColor = "#228B22"; // Green color for foliage (tree canopy)
 let fruitColor = "#FFD700"; // Yellow fruit color
@@ -68,8 +68,11 @@ function drawTree() {
 
     // Draw the tree canopy (top part)
     ctx.fillStyle = foliageColor;
+    // Draw a set of circles to represent foliage
     ctx.beginPath();
-    ctx.arc(plantX + 25, canvas.height - plantHeight - 50, 50, Math.PI, 0, false); // Canopy (semi-circle)
+    ctx.arc(plantX + 25, canvas.height - plantHeight - 60, 60, Math.PI, 0, false); // Canopy 1 (semi-circle)
+    ctx.arc(plantX + 40, canvas.height - plantHeight - 80, 50, Math.PI, 0, false); // Canopy 2 (semi-circle)
+    ctx.arc(plantX, canvas.height - plantHeight - 100, 50, Math.PI, 0, false); // Canopy 3 (semi-circle)
     ctx.fill();
 }
 
